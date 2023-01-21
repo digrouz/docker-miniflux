@@ -23,6 +23,7 @@ RUN set -x && \
       curl \
     && \
     apk add --no-cache --virtual=run-deps \
+      gcompat \
       tzdata \
     && \
     mkdir -p /opt/miniflux/bin && \

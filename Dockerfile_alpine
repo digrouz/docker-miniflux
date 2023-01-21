@@ -1,0 +1,43 @@
+FROM digrouz/alpine-s6:latest
+LABEL maintainer "DI GREGORIO Nicolas <nicolas.digregorio@gmail.com>"
+
+ARG MINIFLUX_VERSION='2.0.41'
+ARG MINIFLUX_ARCH='amd64'
+
+### Environment variables
+ENV LANG='en_US.UTF-8' \
+    LANGUAGE='en_US.UTF-8' \
+    TERM='xterm' \
+    MINIFLUX_VERSION="${MINIFLUX_VERSION}" \
+    MINIFLUX_ARCH="${MINIFLUX_ARCH}" \
+    LISTEN_ADDR="0.0.0.0:8080"
+    
+### Copy config files
+COPY root/ /
+
+### Install Application
+RUN set -x && \
+    apk upgrade --no-cache && \
+    apk add --no-cache --virtual=build-deps \
+      ca-certificates \
+      curl \
+    && \
+    apk add --no-cache --virtual=run-deps \
+      tzdata \
+    && \
+    mkdir -p /opt/miniflux/bin && \
+    curl -SsL "https://github.com/miniflux/v2/releases/download/${MINIFLUX_VERSION}/miniflux-linux-${MINIFLUX_ARCH}" -o /opt/miniflux/bin/miniflux && \
+    echo "export LISTEN_ADDR='${LISTEN_ADDR}'" >> /etc/profile.d/docker-extraenv.sh && \
+    chmod 0755 /opt/miniflux && \
+    find /opt/miniflux -type d -exec chmod 0755 {} \; && \
+    find /opt/miniflux -type f -exec chmod 0644 {} \; && \
+    apk del --no-cache --purge \
+      build-deps  \
+    && \
+    rm -rf /tmp/* \
+           /var/cache/apk/*  \
+           /var/tmp/*
+
+### Expose ports
+Expose 8080
+

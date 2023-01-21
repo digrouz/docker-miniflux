@@ -31,6 +31,7 @@ RUN set -x && \
     chmod 0755 /opt/miniflux && \
     find /opt/miniflux -type d -exec chmod 0755 {} \; && \
     find /opt/miniflux -type f -exec chmod 0644 {} \; && \
+    chmod 755 /opt/miniflux/bin/miniflux && \
     apk del --no-cache --purge \
       build-deps  \
     && \
